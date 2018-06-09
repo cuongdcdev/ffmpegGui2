@@ -1,0 +1,1 @@
+ -loop 1 -i {{i}} -c:v libx264 -t 30 -pix_fmt yuv420p {{o}}

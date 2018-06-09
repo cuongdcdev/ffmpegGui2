@@ -1,0 +1,1 @@
+-i {{i}} -vcodec libvpx-vp9 -b:v 1M -acodec libvorbis {{o}}

@@ -1,0 +1,31 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/media/cuong/RELAX/MUSIC/test/i.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    creation_time   : 2016-08-27 12:53:37
+  Duration: 00:04:43.98, start: 0.000000, bitrate: 1685 kb/s
+    Stream #0:0(und): Video: h264 (Main) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1555 kb/s, 30 fps, 30 tbr, 90k tbn, 60 tbc (default)
+    Metadata:
+      creation_time   : 2016-08-27 12:53:37
+      handler_name    : ISO Media file produced by Google Inc.
+    Stream #0:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 125 kb/s (default)
+    Metadata:
+      creation_time   : 2016-08-27 12:53:37
+      handler_name    : ISO Media file produced by Google Inc.
+Output #0, mp3, to '/media/cuong/RELAX/MUSIC/test/i.mp3':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    TSSE            : Lavf56.40.101
+    Stream #0:0(und): Audio: mp3 (libmp3lame), 44100 Hz, stereo, fltp, 256 kb/s (default)
+    Metadata:
+      creation_time   : 2016-08-27 12:53:37
+      handler_name    : ISO Media file produced by Google Inc.
+      encoder         : Lavc56.60.100 libmp3lame
+Stream mapping:
+  Stream #0:1 -> #0:0 (aac (native) -> mp3 (libmp3lame))
+Press [q] to stop, [?] for help
+size=     504kB time=00:00:16.06 bitrate= 256.9kbits/s    size=    1029kB time=00:00:32.86 bitrate= 256.4kbits/s    size=    1591kB time=00:00:50.86 bitrate= 256.3kbits/s    size=    2150kB time=00:01:08.75 bitrate= 256.2kbits/s    size=    2676kB time=00:01:25.57 bitrate= 256.2kbits/s    size=    3186kB time=00:01:41.90 bitrate= 256.1kbits/s    size=    3683kB time=00:01:57.78 bitrate= 256.1kbits/s    size=    4227kB time=00:02:15.21 bitrate= 256.1kbits/s    size=    4740kB time=00:02:31.61 bitrate= 256.1kbits/s    size=    5285kB time=00:02:49.06 bitrate= 256.1kbits/s    size=    5831kB time=00:03:06.54 bitrate= 256.1kbits/s    size=    6377kB time=00:03:24.01 bitrate= 256.1kbits/s    size=    6922kB time=00:03:41.44 bitrate= 256.1kbits/s    size=    7412kB time=00:03:57.11 bitrate= 256.1kbits/s    size=    7954kB time=00:04:14.45 bitrate= 256.1kbits/s    size=    8474kB time=00:04:31.12 bitrate= 256.1kbits/s    size=    8877kB time=00:04:44.00 bitrate= 256.0kbits/s    
+video:0kB audio:8876kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.010705%

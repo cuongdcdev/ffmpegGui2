@@ -1,0 +1,1 @@
+-i {{i}}  -filter:v scale=720:-1 -c:a copy {{o}}

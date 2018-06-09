@@ -1,0 +1,1 @@
+-hide_banner -i {{i}} -vcodec libx264 -x264-params crf=18 -preset veryslow -acodec copy {{o}}

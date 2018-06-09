@@ -1,0 +1,1 @@
+/usr/bin/ffmpeg -hide_banner -y   -i '/home/cuong/Desktop/ffmpeg project/Videos/ELL_PART_5_768k.wmv' -c:v libx265 	 -preset veryslow  -minrate 500  '/home/cuong/Desktop/ffmpeg project/Videos/ELL_PART_5_768k_h265.mp4'

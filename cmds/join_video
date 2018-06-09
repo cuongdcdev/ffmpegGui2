@@ -1,0 +1,1 @@
+-hide_banner  -i 'concat:video1.avi|video2.avi' output_video.avi

@@ -1,36 +1,104 @@
 package view;
 
-import javax.swing.JFileChooser;
+import java.awt.Image;
 import java.io.File;
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import model.FfmpegApi;
-import net.bramp.ffmpeg.FFmpegExecutor;
-import net.bramp.ffmpeg.builder.FFmpegBuilder;
-import net.bramp.ffmpeg.job.FFmpegJob;
-import net.bramp.ffmpeg.probe.FFmpegProbeResult;
-import net.bramp.ffmpeg.progress.Progress;
-import net.bramp.ffmpeg.progress.ProgressListener;
 
 /*
- * A project of CuongDCDev@gmail.com
- */
+* A project of CuongDCDev@gmail.com
+*/
 /**
  *
  * @author Cường <duongcuong96 at gmail dot com>
  */
 public class Main extends javax.swing.JFrame {
-
+    
     private boolean selected = false;
     private String currentExtension = "avi";
-    private String currentSelectedFile = "";
+    
+    private String currentAction = "none";
+    private String currentFileName = "";
+    
+    private String currentPath = "";
+    private String inputFilePath = "";
+    private String outputFilePath = "";
+    private String inputDirPath = "";
+    
+    private String outputDirPath = "";
+    private File[] selectedFiles = null;
+    private String inputFilesPath = "";
+    
+    //string cho viec cat video 
+    private String videoLengthInString = "00:00:00";
 
+    private String videoCutFromInString = "00:00:00"; //cut from 
+    private String videoCutToInString = "00:00:00";
+
+    
     /**
      * Creates new form Mani
      */
     public Main() {
         initComponents();
+        initState();
+        this.setTitle("Phần mềm chuyển đổi video");
+        
+        
     }
-
+    
+    public void initState()  {
+        //hide btn cat video
+        cut_video.setVisible(false);
+        
+        if (outputFilePath.trim().length() == 0) {
+            btn_playvideo.setEnabled(false);
+        }
+        
+        if (inputFilePath.trim().length() == 0) {
+            preview_video.setEnabled(false);
+            cut_video.setEnabled(false);
+        }
+        
+        try{
+            //set app icon
+            String logoPath = FfmpegApi.basePath + File.separator  + "asset" + File.separator + "img" + File.separator + "logo.png";
+            System.out.println("logo path : " + logoPath);
+            Image i = ImageIO.read( new File(logoPath) );
+            setIconImage(i);
+            
+            //set dialog convert co video img
+            changeresimg.setText("");
+            changeresimg.setIcon( new ImageIcon( FfmpegApi.basePath  + File.separator  + "asset" + File.separator + "img" + File.separator + "res.png" ) );
+            
+            //set dialog cut video img 
+            lbl_cutVideoImg.setIcon( new ImageIcon(new ImageIcon( FfmpegApi.basePath + File.separator + "asset" + File.separator + "img" + File.separator + "video.png"  ).getImage().getScaledInstance(90, 90, Image.SCALE_DEFAULT)) );
+            lbl_cutVideoImg.setText("");
+            
+        }catch(  Exception ex){
+            ex.printStackTrace();
+        };
+        
+        
+        
+    }
+    
+    public String getOnlyFileName(String fileNameWithExtension) {
+        String[] farray = fileNameWithExtension.split("\\.");
+        return farray[0].trim();
+    }
+    
+    public String getOnlyFileExtension(String fileNameWithExtension) {
+        String[] farray = fileNameWithExtension.split("\\.");
+        return farray[1].trim();
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -42,22 +110,322 @@ public class Main extends javax.swing.JFrame {
 
         jButton1 = new javax.swing.JButton();
         btnGroup = new javax.swing.ButtonGroup();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuBar2 = new javax.swing.JMenuBar();
+        jMenu3 = new javax.swing.JMenu();
+        jMenu4 = new javax.swing.JMenu();
+        jMenuBar3 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenu5 = new javax.swing.JMenu();
+        jMenuBar4 = new javax.swing.JMenuBar();
+        jMenu2 = new javax.swing.JMenu();
+        jMenu6 = new javax.swing.JMenu();
+        jd_changeVideoSize = new javax.swing.JDialog();
+        cb_changeRes = new javax.swing.JComboBox<>();
+        btn_changeresOk = new javax.swing.JButton();
+        changeresimg = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jd_cutVideo = new javax.swing.JDialog();
+        lbl_cutVideoImg = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        txt_cutVideoLength = new javax.swing.JLabel();
+        txt_ten = new javax.swing.JLabel();
+        btn_cutVideoOk = new javax.swing.JButton();
+        txt_frommin = new javax.swing.JTextField();
+        txt_fromhour = new javax.swing.JTextField();
+        txt_fromsec = new javax.swing.JTextField();
+        txt_tomin = new javax.swing.JTextField();
+        txt_tohour = new javax.swing.JTextField();
+        txt_tosec = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        txt_cutVideoName = new javax.swing.JLabel();
+        txt_vleng = new javax.swing.JLabel();
+        txt_tenlabel = new javax.swing.JLabel();
+        cb_toEnd = new javax.swing.JCheckBox();
         btnStart = new javax.swing.JButton();
         btnSelectFile = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        txtFileName = new javax.swing.JTextPane();
-        statusBar = new javax.swing.JProgressBar();
         jScrollPane2 = new javax.swing.JScrollPane();
         logPanel = new javax.swing.JTextArea();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0));
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0));
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        btn_playvideo = new javax.swing.JButton();
+        cut_video = new javax.swing.JButton();
+        preview_video = new javax.swing.JButton();
+        txt_progressStat = new javax.swing.JLabel();
+        txt_status = new javax.swing.JLabel();
+        btnActionPanel = new javax.swing.JPanel();
+        mkv = new javax.swing.JButton();
+        avi = new javax.swing.JButton();
+        mp4 = new javax.swing.JButton();
+        mp3 = new javax.swing.JButton();
+        wmv = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        to_h265 = new javax.swing.JButton();
+        btn_clearlog = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        menu_tut = new javax.swing.JMenu();
+        menu_tut1 = new javax.swing.JMenu();
+        menu_changeRes = new javax.swing.JMenuItem();
+        btn_cutVideo = new javax.swing.JMenuItem();
+        btn_getVideoInfo = new javax.swing.JMenuItem();
 
         jButton1.setText("jButton1");
+
+        jMenuItem3.setText("jMenuItem3");
+
+        jMenu3.setText("File");
+        jMenuBar2.add(jMenu3);
+
+        jMenu4.setText("Edit");
+        jMenuBar2.add(jMenu4);
+
+        jMenu1.setText("File");
+        jMenuBar3.add(jMenu1);
+
+        jMenu5.setText("Edit");
+        jMenuBar3.add(jMenu5);
+
+        jMenu2.setText("File");
+        jMenuBar4.add(jMenu2);
+
+        jMenu6.setText("Edit");
+        jMenuBar4.add(jMenu6);
+
+        jd_changeVideoSize.setTitle("Chuyển Độ Phân Giải ");
+
+        cb_changeRes.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "320 * y", "480 * y", "720 * y " }));
+        cb_changeRes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cb_changeResActionPerformed(evt);
+            }
+        });
+
+        btn_changeresOk.setText("Đồng ý ");
+        btn_changeresOk.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_changeresOkActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setFont(new java.awt.Font("Open Sans", 2, 12)); // NOI18N
+        jLabel2.setText("Chiều cao video sẽ tự động được điều chỉnh giữ tỉ lệ với video gốc");
+
+        jLabel3.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
+        jLabel3.setText("Chọn kích cỡ cần đổi");
+
+        javax.swing.GroupLayout jd_changeVideoSizeLayout = new javax.swing.GroupLayout(jd_changeVideoSize.getContentPane());
+        jd_changeVideoSize.getContentPane().setLayout(jd_changeVideoSizeLayout);
+        jd_changeVideoSizeLayout.setHorizontalGroup(
+            jd_changeVideoSizeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jd_changeVideoSizeLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jd_changeVideoSizeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jd_changeVideoSizeLayout.createSequentialGroup()
+                        .addGroup(jd_changeVideoSizeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
+                            .addGroup(jd_changeVideoSizeLayout.createSequentialGroup()
+                                .addGroup(jd_changeVideoSizeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(btn_changeresOk, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(cb_changeRes, javax.swing.GroupLayout.Alignment.LEADING, 0, 246, Short.MAX_VALUE))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(changeresimg, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jd_changeVideoSizeLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jd_changeVideoSizeLayout.setVerticalGroup(
+            jd_changeVideoSizeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jd_changeVideoSizeLayout.createSequentialGroup()
+                .addContainerGap(32, Short.MAX_VALUE)
+                .addGroup(jd_changeVideoSizeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jd_changeVideoSizeLayout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(39, 39, 39)
+                        .addComponent(cb_changeRes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btn_changeresOk, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(changeresimg, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(17, 17, 17)
+                .addComponent(jLabel2)
+                .addGap(10, 10, 10))
+        );
+
+        lbl_cutVideoImg.setToolTipText("");
+
+        jLabel4.setFont(new java.awt.Font("Open Sans", 1, 12)); // NOI18N
+        jLabel4.setText("Cắt Từ");
+
+        jLabel5.setFont(new java.awt.Font("Open Sans", 1, 12)); // NOI18N
+        jLabel5.setText("Cắt Tới");
+
+        btn_cutVideoOk.setText("Đồng ý ");
+        btn_cutVideoOk.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_cutVideoOkActionPerformed(evt);
+            }
+        });
+
+        txt_fromhour.setText("00");
+
+        txt_tohour.setText("00");
+
+        jLabel6.setFont(new java.awt.Font("Open Sans", 1, 12)); // NOI18N
+        jLabel6.setText("Giờ");
+
+        jLabel7.setFont(new java.awt.Font("Open Sans", 1, 12)); // NOI18N
+        jLabel7.setText("Giây");
+
+        jLabel9.setFont(new java.awt.Font("Open Sans", 1, 18)); // NOI18N
+        jLabel9.setText(":");
+
+        jLabel10.setFont(new java.awt.Font("Open Sans", 1, 12)); // NOI18N
+        jLabel10.setText("Phút");
+
+        jLabel11.setFont(new java.awt.Font("Open Sans", 1, 18)); // NOI18N
+        jLabel11.setText(":");
+
+        jLabel12.setFont(new java.awt.Font("Open Sans", 1, 18)); // NOI18N
+        jLabel12.setText(":");
+
+        jLabel13.setFont(new java.awt.Font("Open Sans", 1, 18)); // NOI18N
+        jLabel13.setText(":");
+
+        txt_vleng.setFont(new java.awt.Font("Open Sans", 1, 12)); // NOI18N
+        txt_vleng.setText("Thời lượng:");
+
+        txt_tenlabel.setFont(new java.awt.Font("Open Sans", 1, 12)); // NOI18N
+        txt_tenlabel.setText("Tên:");
+
+        cb_toEnd.setText("cuối");
+        cb_toEnd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cb_toEndActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jd_cutVideoLayout = new javax.swing.GroupLayout(jd_cutVideo.getContentPane());
+        jd_cutVideo.getContentPane().setLayout(jd_cutVideoLayout);
+        jd_cutVideoLayout.setHorizontalGroup(
+            jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jd_cutVideoLayout.createSequentialGroup()
+                .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jd_cutVideoLayout.createSequentialGroup()
+                        .addGap(19, 19, 19)
+                        .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel5))
+                        .addGap(64, 64, 64)
+                        .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jd_cutVideoLayout.createSequentialGroup()
+                                .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(txt_fromhour, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txt_tohour, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(jLabel6)
+                            .addComponent(cb_toEnd, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jd_cutVideoLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(lbl_cutVideoImg, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txt_vleng)
+                            .addComponent(txt_tenlabel))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txt_cutVideoName)
+                    .addComponent(txt_cutVideoLength)
+                    .addComponent(txt_ten)
+                    .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jd_cutVideoLayout.createSequentialGroup()
+                            .addComponent(txt_tomin, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabel11)
+                            .addGap(18, 18, 18)
+                            .addComponent(txt_tosec, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jd_cutVideoLayout.createSequentialGroup()
+                            .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jd_cutVideoLayout.createSequentialGroup()
+                                    .addComponent(txt_frommin, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(9, 9, 9)
+                                    .addComponent(jLabel12))
+                                .addComponent(jLabel10))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel7)
+                                .addComponent(txt_fromsec, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jd_cutVideoLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(btn_cutVideoOk, javax.swing.GroupLayout.PREFERRED_SIZE, 435, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(27, Short.MAX_VALUE))
+        );
+        jd_cutVideoLayout.setVerticalGroup(
+            jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jd_cutVideoLayout.createSequentialGroup()
+                .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jd_cutVideoLayout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(txt_cutVideoName)
+                        .addGap(30, 30, 30)
+                        .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txt_tenlabel)
+                            .addComponent(txt_ten))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txt_vleng)
+                            .addComponent(txt_cutVideoLength)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jd_cutVideoLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(lbl_cutVideoImg, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel6)
+                        .addComponent(jLabel10))
+                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGap(18, 18, 18)
+                .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txt_fromhour, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txt_frommin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel9)
+                        .addComponent(jLabel4))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel12)
+                        .addComponent(txt_fromsec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jd_cutVideoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txt_tohour, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_tomin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_tosec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(cb_toEnd)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn_cutVideoOk, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(13, 13, 13))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         btnStart.setText("START");
+        btnStart.setToolTipText("bắt đầu chuyển đổi");
         btnStart.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnStartActionPerformed(evt);
@@ -71,84 +439,267 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
-        txtFileName.setEditable(false);
-        jScrollPane1.setViewportView(txtFileName);
-
+        logPanel.setEditable(false);
         logPanel.setColumns(20);
         logPanel.setRows(5);
         jScrollPane2.setViewportView(logPanel);
 
-        jButton2.setText("mp4");
-        btnGroup.add(jButton2);
-
-        jButton3.setText("avi");
-        btnGroup.add(jButton3);
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        btn_playvideo.setText("Play");
+        btn_playvideo.setToolTipText("Chạy file đã convert");
+        btn_playvideo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                btn_playvideoActionPerformed(evt);
             }
         });
 
-        jButton4.setText("mkv");
-        btnGroup.add(jButton4);
+        cut_video.setText("Cắt Video");
+        cut_video.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cut_videoActionPerformed(evt);
+            }
+        });
+
+        preview_video.setText("Xem trước");
+        preview_video.setToolTipText("Xem trước file đầu vào");
+        preview_video.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                preview_videoActionPerformed(evt);
+            }
+        });
+
+        txt_progressStat.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
+        txt_progressStat.setText("đang chờ ....");
+        txt_progressStat.setToolTipText("");
+
+        txt_status.setBackground(new java.awt.Color(255, 0, 0));
+        txt_status.setFont(new java.awt.Font("Open Sans", 1, 14)); // NOI18N
+        txt_status.setText("Trạng thái:");
+
+        mkv.setText("mkv");
+        btnGroup.add(mkv);
+        mkv.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mkvActionPerformed(evt);
+            }
+        });
+
+        avi.setText("avi");
+        btnGroup.add(avi);
+        avi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aviActionPerformed(evt);
+            }
+        });
+
+        mp4.setText("chuyển sang codec h264");
+        btnGroup.add(mp4);
+        mp4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mp4ActionPerformed(evt);
+            }
+        });
+
+        mp3.setText("mp3");
+        btnGroup.add(mp3);
+        mp3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mp3ActionPerformed(evt);
+            }
+        });
+
+        wmv.setText("wmv");
+        btnGroup.add(wmv);
+        wmv.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                wmvActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Chọn định dạng");
+
+        to_h265.setText("chuyển sang codec h265");
+        btnGroup.add(to_h265);
+        to_h265.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                to_h265ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout btnActionPanelLayout = new javax.swing.GroupLayout(btnActionPanel);
+        btnActionPanel.setLayout(btnActionPanelLayout);
+        btnActionPanelLayout.setHorizontalGroup(
+            btnActionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(btnActionPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(btnActionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addGroup(btnActionPanelLayout.createSequentialGroup()
+                        .addComponent(mkv)
+                        .addGap(18, 18, 18)
+                        .addComponent(avi)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(mp4))
+                    .addGroup(btnActionPanelLayout.createSequentialGroup()
+                        .addComponent(wmv)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(mp3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(to_h265)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        btnActionPanelLayout.setVerticalGroup(
+            btnActionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(btnActionPanelLayout.createSequentialGroup()
+                .addContainerGap(18, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(18, 18, 18)
+                .addGroup(btnActionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(mp4)
+                    .addComponent(avi)
+                    .addComponent(mkv))
+                .addGap(26, 26, 26)
+                .addGroup(btnActionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(wmv)
+                    .addComponent(to_h265)
+                    .addComponent(mp3)))
+        );
+
+        btn_clearlog.setText("clear log");
+        btn_clearlog.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_clearlogActionPerformed(evt);
+            }
+        });
+
+        jMenuBar1.setToolTipText("");
+
+        menu_tut.setText("Hướng dẫn ");
+        menu_tut.setAlignmentX(1.0F);
+        menu_tut.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menu_tutMouseClicked(evt);
+            }
+        });
+        jMenuBar1.add(menu_tut);
+
+        menu_tut1.setText("Công cụ ");
+        menu_tut1.setAlignmentX(1.0F);
+        menu_tut1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menu_tut1MouseClicked(evt);
+            }
+        });
+
+        menu_changeRes.setText("Chuyển độ phân giải ");
+        menu_changeRes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menu_changeResActionPerformed(evt);
+            }
+        });
+        menu_tut1.add(menu_changeRes);
+
+        btn_cutVideo.setText("Cắt Video ");
+        btn_cutVideo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_cutVideoActionPerformed(evt);
+            }
+        });
+        menu_tut1.add(btn_cutVideo);
+
+        btn_getVideoInfo.setText("Lấy Thông Tin Video");
+        btn_getVideoInfo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_getVideoInfoActionPerformed(evt);
+            }
+        });
+        menu_tut1.add(btn_getVideoInfo);
+
+        jMenuBar1.add(menu_tut1);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(24, 24, 24)
+                .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnSelectFile, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(59, 59, 59)
-                        .addComponent(jScrollPane1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
+                        .addComponent(btnActionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnStart, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(btnStart, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(12, 12, 12))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(btn_clearlog, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButton4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton3)
-                                .addGap(12, 12, 12)
-                                .addComponent(jButton2)))))
-                .addContainerGap())
+                                .addComponent(btnSelectFile, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btn_playvideo, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(preview_video, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(cut_video, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap())))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txt_status, javax.swing.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txt_progressStat, javax.swing.GroupLayout.PREFERRED_SIZE, 562, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(52, 52, 52))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(34, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1)
-                    .addComponent(btnSelectFile, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSelectFile, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cut_video, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(preview_video, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_playvideo, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(9, 9, 9)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton4)
-                            .addComponent(jButton3)
-                            .addComponent(jButton2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btn_clearlog)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
                         .addComponent(btnStart, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(statusBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(9, 9, 9))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnActionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txt_status)
+                    .addComponent(txt_progressStat)))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void btnSelectFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelectFileActionPerformed
         try {
             JFileChooser jf = new JFileChooser();
             if (jf.showOpenDialog(jf) == JFileChooser.APPROVE_OPTION) {
                 File f = jf.getSelectedFile();
-                currentSelectedFile = f.getAbsolutePath();
-                txtFileName.setText(currentSelectedFile);
+                inputFilePath = f.getAbsolutePath();
+                currentPath = f.getPath();
+                currentFileName = f.getName();
+                
+                System.out.println("input file path: " + inputFilePath);
+                System.out.println(" current path : " + currentPath);
+                System.out.println("Current file name : " + currentFileName);
+                
+                preview_video.setEnabled(true);
+                cut_video.setEnabled(true);
+                addLog("Đã chọn file đầu vào là: " + currentFileName);
+                
             } else {
                 selected = false;
             }
@@ -156,53 +707,321 @@ public class Main extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }//GEN-LAST:event_btnSelectFileActionPerformed
+    private void startConvert() {
+        //tien hanh chay convert tao thread moi
+        FfmpegApi ffmpegApi = new FfmpegApi();
+        String outputFileNameWithouExtension = outputDirPath + getOnlyFileName(currentFileName);
+        String outputFileExtension = getOnlyFileExtension(currentFileName);
+        switch (currentAction) {
+            case "avi":
+                ffmpegApi.init(currentAction, inputFilePath, outputFileNameWithouExtension + ".avi");
+                break;
 
-    private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
+            case "mkv":
+                ffmpegApi.init(currentAction, inputFilePath, outputFileNameWithouExtension + ".mkv");
+                break;
+
+            case "mp4":
+                ffmpegApi.init(currentAction, inputFilePath, outputFileNameWithouExtension + "_h264.mp4");
+                break;
+
+            case "wmv":
+                ffmpegApi.init(currentAction, inputFilePath, outputFileNameWithouExtension + ".wmv");
+                break;
+
+            case "mp3":
+                ffmpegApi.init(currentAction, inputFilePath, outputFileNameWithouExtension + ".mp3");
+                break;
+
+            case "h265":
+                ffmpegApi.init(currentAction, inputFilePath, outputFileNameWithouExtension + "_h265.mp4");
+                break;
+
+            case "vp9":
+                ffmpegApi.init(currentAction, inputFilePath, outputFileNameWithouExtension + ".mp4" );
+                break;
+
+            case "cut_video":
+                ffmpegApi.init("cut_video", inputFilePath, outputFileNameWithouExtension + "_cutted"  + "." +outputFileExtension );
+                break;
+                
+            case "scale_video_720":
+                ffmpegApi.init( "scale_video_720" , inputFilePath , outputFileNameWithouExtension + "_scaled720" + "." + outputFileExtension );
+            break;
+            
+            case "scale_video_480":
+                ffmpegApi.init( "scale_video_480" , inputFilePath , outputFileNameWithouExtension + "_scaled480" + "." + outputFileExtension );
+            break;
+            
+            case "scale_video_320":
+                ffmpegApi.init( "scale_video_320" , inputFilePath , outputFileNameWithouExtension + "_scaled320" + "." + outputFileExtension );
+            break;
+}
+outputFilePath = ffmpegApi.getOutputFilePath();
+System.out.println("start thread convert ! ");
+
+SwingWorker<Boolean, String> worker = new SwingWorker<Boolean, String>() {
+    @Override
+    protected Boolean doInBackground() throws Exception {
         
-        Thread t = new Thread() {
+        Thread t2 = new Thread() {
+            @Override
             public void run() {
-                try {
-                    logPanel.append(" ---- START CONVERT VIDEO --- \n ");
-                    String outPutFile = currentSelectedFile + "." + currentExtension;
-                    System.out.println("org file : " + currentSelectedFile + " | convert to : " + outPutFile);
-                    FfmpegApi api = FfmpegApi.getInstance();
-//show process while encoding 
-                    FFmpegExecutor executor = new FFmpegExecutor(api.getFfmpeg(), api.getFfprobe());
-                    FFmpegProbeResult in = api.getFfprobe().probe(currentSelectedFile);
-                    FFmpegBuilder builder = new FFmpegBuilder().setInput(currentSelectedFile).addOutput(outPutFile).done();
-                    FFmpegJob job = executor.createJob(builder, new ProgressListener() {
-                        // Using the FFmpegProbeResult determine the duration of the input
-                        final double duration_ns = in.getFormat().duration * TimeUnit.SECONDS.toNanos(1);
-
-                        @Override
-                        public void progress(Progress progress) {
-                            double percent = progress.out_time_ns / duration_ns;
-                            String str = Double.toString(percent);
-                            //out put percent
-
-                            System.out.println("progress: " + str.substring(0, 4) + "/ 1");
-                            logPanel.append("progress: " + Double.parseDouble(str.substring(0, 4)) * 100 + "% / 100% \n");
-                            logPanel.setCaretPosition(logPanel.getDocument().getLength() - 5 );
-                        }
-                    });
-                    job.run();
-                    logPanel.append("File saved to: " + currentSelectedFile + ".avi");
-                    logPanel.append("--- DONE --- ");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                while (!ffmpegApi.isVideoConvertDone()) {
+                    txt_progressStat.setText( ffmpegApi.getConvertStat() );
                 }
             }
         };
+        t2.start();
+        
+        if( "cut_video".equals(currentAction) ){
+             ffmpegApi.cutVideo(videoCutFromInString , videoCutToInString  );
+        }else{
+             ffmpegApi.startConvert();
+        }
+        
+        btn_playvideo.setEnabled(true); //sau khi convert xong
+        return true;
+    }
+    
+    protected void done() {
+        Boolean status;
+        try {
+            status = get();
+            btnStart.setText("Start");
+            btnStart.setEnabled(true);
+            addLog("Thao tác thành công, file được lưu ở: " + outputFilePath + "\n\n - - - \n"  );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    };
+};
 
-        t.start();
+worker.execute();
 
-
+    }
+    private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
+        
+        JFileChooser jf = new JFileChooser();
+        jf.setCurrentDirectory(new File(currentPath));
+        jf.setDialogTitle("Chọn vị trí lưu");
+        jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        
+        if (jf.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            
+            outputDirPath = jf.getSelectedFile().getPath();
+            System.out.println("output DIR Path : " + outputDirPath);
+            outputDirPath += File.separator;
+            
+            btnStart.setText("Đang chạy ...");
+            
+            btnStart.setEnabled(false);
+            preview_video.setEnabled(false);
+            addLog("Bắt đầu chuyển đổi, vui lòng chờ .... ");
+            startConvert();
+            
+        } else {
+            return; // take no action
+        }
+        
     }//GEN-LAST:event_btnStartActionPerformed
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    
+    private void aviActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aviActionPerformed
+        currentAction = "avi";
+        addLog("Đã chọn đổi video sang định dạng avi");
+    }//GEN-LAST:event_aviActionPerformed
+    
+    private void btn_playvideoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_playvideoActionPerformed
+        FfmpegApi ffmpeg = new FfmpegApi();
+        ffmpeg.playVideo(outputFilePath);
+        addLog( "Mở file đã chuyển đổi: " + outputFilePath  );
+    }//GEN-LAST:event_btn_playvideoActionPerformed
+    
+    private void preview_videoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_preview_videoActionPerformed
+        FfmpegApi ffmpeg = new FfmpegApi();
+        ffmpeg.playVideo( inputFilePath );
+        addLog("Xem trước file: " + inputFilePath );
+        
+    }//GEN-LAST:event_preview_videoActionPerformed
+    
+    private void mkvActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mkvActionPerformed
+        currentAction = "mkv";
+        addLog("Đã chọn đổi video sang định dạng mkv");
+        
+    }//GEN-LAST:event_mkvActionPerformed
+    
+    private void mp3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mp3ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+        currentAction = "mp3";
+        addLog("Đã chọn đổi video sang định dạng nhạc mp3");
+        
+    }//GEN-LAST:event_mp3ActionPerformed
+    
+    private void wmvActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wmvActionPerformed
+        
+        currentAction = "wmv";
+        addLog("Đã chọn đổi video sang định dạng wmv");
+        
+    }//GEN-LAST:event_wmvActionPerformed
+    
+    private void to_h265ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_to_h265ActionPerformed
+        // TODO add your handling code here:
+        currentAction = "h265";
+        addLog("Đã chọn đổi video sang codec h265, việc này sẽ giúp bạn giảm đáng kể dung lượng video");
+    }//GEN-LAST:event_to_h265ActionPerformed
+    
+    private void mp4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mp4ActionPerformed
+        currentAction = "mp4";
+        addLog("Đã chọn đổi video sang định dạng mp4 h264");
+    }//GEN-LAST:event_mp4ActionPerformed
+    
+    private void btn_clearlogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_clearlogActionPerformed
+        logPanel.setText("");
+    }//GEN-LAST:event_btn_clearlogActionPerformed
+    
+    private void menu_tutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menu_tutMouseClicked
+        String docUrl = "file://" + FfmpegApi.basePath + File.separator + "asset" + File.separator + "doc" + File.separator + "index.html";
+        try {
+            System.out.println("Trying to open doc url : " + docUrl );
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(docUrl));
+        } catch (IOException ex) {
+            addLog("hmm, có vẻ như có lỗi xảy ra : " + ex.getMessage() );
+        }
+    }//GEN-LAST:event_menu_tutMouseClicked
+    
+    private void cut_videoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cut_videoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cut_videoActionPerformed
+    
+    private void menu_tut1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menu_tut1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_menu_tut1MouseClicked
+    
+    private void menu_changeResActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_changeResActionPerformed
+        if( !checkInput() ) return;
+        
+        jd_changeVideoSize.pack();
+        jd_changeVideoSize.setLocationRelativeTo(this);
+        jd_changeVideoSize.setVisible(true);
+    }//GEN-LAST:event_menu_changeResActionPerformed
 
+    private void btn_changeresOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_changeresOkActionPerformed
+       if( !checkInput() ){
+           addLog( "Bạn vui lòng chọn file đầu vào trước nhá :) " );
+           return;
+       }
+       
+        //320 - 480 - 720
+        switch(  cb_changeRes.getSelectedIndex() ){
+            case 0 :
+            currentAction = "scale_video_320";
+            break;
+
+            case 1 :
+            currentAction = "scale_video_480";
+            break;
+
+            case 2 :
+            currentAction = "scale_video_720";
+            break;
+        }
+        System.out.println("change res command : " + currentAction );
+        jd_changeVideoSize.setVisible(false);
+
+        String mod = "";
+        switch( currentAction ){
+            case "scale_video_320":
+                mod = " sang 320px rộng ";
+                break;
+                
+            case "scale_video_480":
+                mod = " sang 480px rộng ";
+                break;
+                
+            case "scale_video_720":
+                mod = " sang 720px rộng  ";
+                break;
+        }
+        addLog( "Chuyển độ phân giải file " + mod + " , tỉ lệ chiều cao được giữ theo tỉ lệ gốc video" );
+   
+    }//GEN-LAST:event_btn_changeresOkActionPerformed
+
+    private void cb_changeResActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cb_changeResActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cb_changeResActionPerformed
+
+    private void btn_getVideoInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_getVideoInfoActionPerformed
+        if( !checkInput() ) return;
+        VideoInfoScreen vif = new VideoInfoScreen();
+        FfmpegApi ffmpeg = new FfmpegApi("get_video_info" , inputFilePath );
+        vif.setTxt_log( ffmpeg.getVideoInfo());
+        
+        vif.setLocationRelativeTo(this);
+        vif.setVisible(true);
+        
+        
+    }//GEN-LAST:event_btn_getVideoInfoActionPerformed
+
+    private void btn_cutVideoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cutVideoActionPerformed
+            if( !checkInput() ) return;
+            
+            FfmpegApi ffmpeg = new FfmpegApi( "get_video_info" , inputFilePath );
+            
+
+           
+           String[] timearr = ffmpeg.getVideoLengthInString().split(":");
+           txt_tohour.setText(timearr[0]);
+           txt_tomin.setText(timearr[1]);
+           txt_tosec.setText(timearr[2]);
+           
+           currentAction = "cut_video";// set action hien tai 
+           addLog("Chuyển sang chế độ cắt video ");
+           
+            jd_cutVideo.pack();
+            jd_cutVideo.setLocationRelativeTo(this);
+            txt_ten.setText( currentFileName );
+            txt_cutVideoLength.setText( ffmpeg.getVideoLengthInString() );
+            jd_cutVideo.setVisible(true);
+            
+    }//GEN-LAST:event_btn_cutVideoActionPerformed
+
+    private void btn_cutVideoOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cutVideoOkActionPerformed
+        
+        try{
+           double from_sec = Double.parseDouble(txt_fromsec.getText() );
+           int from_min = Integer.parseInt(txt_frommin.getText() );
+           int from_hour =Integer.parseInt(  txt_fromhour.getText() );
+           double total_from_sec = from_hour * 60*60 + from_min * 60 + from_sec;
+           
+           
+           double to_sec = Double.parseDouble( txt_tosec.getText() );
+           int to_min = Integer.parseInt( txt_tomin.getText() );
+           int to_hour = Integer.parseInt(txt_tohour.getText() );
+           double total_to_sec = to_hour * 60 * 60 + to_min * 60 + to_sec;
+           
+           //truong hop faild
+           if(total_from_sec >= total_to_sec || from_sec >= 60 || from_hour >= 60 || from_min >= 60 || to_sec >= 60 || to_min >= 60 || to_hour >= 60 ){
+                addLog( "Hmm, thời gian bắt đầu cắt không được phép lớn hơn thời gian cắt :/ " );
+               return;
+           }
+           
+           videoCutFromInString = from_hour + ":" + from_min + ":" + from_sec;
+           videoCutToInString   = to_hour  + ":"  + to_min + ":" + to_sec;
+            jd_cutVideo.setVisible(false);
+            addLog( "Chọn cắt video từ "  + videoCutFromInString + " tới " + (cb_toEnd.isSelected() ? " hết " : videoCutToInString) ); 
+          
+        }catch( Exception ex ){
+            addLog( "hmm, Có vẻ như bạn đã nhập sai số, check lại nha :) " );
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_btn_cutVideoOkActionPerformed
+
+    private void cb_toEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cb_toEndActionPerformed
+          txt_tohour.setEnabled(false);
+          txt_tomin.setEnabled(false);
+          txt_tosec.setEnabled(false);
+    }//GEN-LAST:event_cb_toEndActionPerformed
+            
     /**
      * @param args the command line arguments
      */
@@ -210,47 +1029,128 @@ public class Main extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
+        * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+        */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//</editor-fold>
+//</editor-fold>
+try {
+    // select Look and Feel
+    UIManager.setLookAndFeel("com.jtattoo.plaf.smart.SmartLookAndFeel");
+    // start application
+}
+catch (Exception ex) {
+    ex.printStackTrace();
+}
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Main().setVisible(true);
-            }
-        });
+
+
+/* Create and display the form */
+java.awt.EventQueue.invokeLater(new Runnable() {
+    public void run() {
+        new Main().setVisible(true);
     }
-
+});
+    }
+    
+    public void addLog(String content) {
+        logPanel.append("> " + content + "\n");
+        logPanel.setCaretPosition( logPanel.getText().length()   );
+    }
+    
+    public boolean checkInput(){
+        if( inputFilePath.length() == 0  ){
+            addLog( "Bạn phải chọn file trước nha :) " );
+            return false;
+        }
+        return true;
+    }
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton avi;
+    private javax.swing.JPanel btnActionPanel;
     private javax.swing.ButtonGroup btnGroup;
     private javax.swing.JButton btnSelectFile;
     private javax.swing.JButton btnStart;
+    private javax.swing.JButton btn_changeresOk;
+    private javax.swing.JButton btn_clearlog;
+    private javax.swing.JMenuItem btn_cutVideo;
+    private javax.swing.JButton btn_cutVideoOk;
+    private javax.swing.JMenuItem btn_getVideoInfo;
+    private javax.swing.JButton btn_playvideo;
+    private javax.swing.JComboBox<String> cb_changeRes;
+    private javax.swing.JCheckBox cb_toEnd;
+    private javax.swing.JLabel changeresimg;
+    private javax.swing.JButton cut_video;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
+    private javax.swing.Box.Filler filler3;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenu jMenu5;
+    private javax.swing.JMenu jMenu6;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuBar jMenuBar2;
+    private javax.swing.JMenuBar jMenuBar3;
+    private javax.swing.JMenuBar jMenuBar4;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JDialog jd_changeVideoSize;
+    private javax.swing.JDialog jd_cutVideo;
+    private javax.swing.JLabel lbl_cutVideoImg;
     private javax.swing.JTextArea logPanel;
-    private javax.swing.JProgressBar statusBar;
-    private javax.swing.JTextPane txtFileName;
+    private javax.swing.JMenuItem menu_changeRes;
+    private javax.swing.JMenu menu_tut;
+    private javax.swing.JMenu menu_tut1;
+    private javax.swing.JButton mkv;
+    private javax.swing.JButton mp3;
+    private javax.swing.JButton mp4;
+    private javax.swing.JButton preview_video;
+    private javax.swing.JButton to_h265;
+    private javax.swing.JLabel txt_cutVideoLength;
+    private javax.swing.JLabel txt_cutVideoName;
+    private javax.swing.JTextField txt_fromhour;
+    private javax.swing.JTextField txt_frommin;
+    private javax.swing.JTextField txt_fromsec;
+    private javax.swing.JLabel txt_progressStat;
+    private javax.swing.JLabel txt_status;
+    private javax.swing.JLabel txt_ten;
+    private javax.swing.JLabel txt_tenlabel;
+    private javax.swing.JTextField txt_tohour;
+    private javax.swing.JTextField txt_tomin;
+    private javax.swing.JTextField txt_tosec;
+    private javax.swing.JLabel txt_vleng;
+    private javax.swing.JButton wmv;
     // End of variables declaration//GEN-END:variables
 }
